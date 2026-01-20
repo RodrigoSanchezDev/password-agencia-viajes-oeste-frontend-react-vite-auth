@@ -1,0 +1,341 @@
+/* Login Page - Modern Split Screen Design */
+.login-page {
+  display: flex;
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+/* Hero Section (Left Side) */
+.login-hero {
+  flex: 1;
+  position: relative;
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #3b82f6 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem;
+  overflow: hidden;
+}
+
+.login-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: url('https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1200&q=80') center/cover;
+  opacity: 0.15;
+  mix-blend-mode: overlay;
+}
+
+.login-hero__content {
+  position: relative;
+  z-index: 10;
+  max-width: 500px;
+}
+
+.login-hero__logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 3rem;
+}
+
+.login-hero__logo-icon {
+  font-size: 2.5rem;
+  color: white;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.login-hero__logo-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.025em;
+}
+
+.login-hero__title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: white;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.025em;
+}
+
+.login-hero__subtitle {
+  font-size: 1.125rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.7;
+  margin-bottom: 3rem;
+}
+
+.login-hero__stats {
+  display: flex;
+  gap: 3rem;
+}
+
+.login-hero__stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-hero__stat-number {
+  font-size: 2rem;
+  font-weight: 800;
+  color: white;
+  line-height: 1;
+}
+
+.login-hero__stat-label {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Decorative circles */
+.login-hero__decoration {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.login-hero__circle {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.login-hero__circle--1 {
+  width: 400px;
+  height: 400px;
+  top: -100px;
+  right: -100px;
+  animation: pulse 4s ease-in-out infinite;
+}
+
+.login-hero__circle--2 {
+  width: 300px;
+  height: 300px;
+  bottom: 10%;
+  right: 20%;
+  animation: pulse 4s ease-in-out infinite 1s;
+}
+
+.login-hero__circle--3 {
+  width: 200px;
+  height: 200px;
+  bottom: -50px;
+  left: -50px;
+  animation: pulse 4s ease-in-out infinite 2s;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+}
+
+/* Form Section (Right Side) */
+.login-form-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: white;
+}
+
+.login-form-wrapper {
+  width: 100%;
+  max-width: 440px;
+}
+
+.login-form__header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.login-form__title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.025em;
+}
+
+.login-form__subtitle {
+  color: #64748b;
+  font-size: 1rem;
+}
+
+.login-form__credentials-box {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 1px solid #bae6fd;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+.login-form__credentials-icon {
+  font-size: 1.5rem;
+  color: #0369a1;
+}
+
+.login-form__credentials-content {
+  flex: 1;
+}
+
+.login-form__credentials-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #0369a1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.login-form__credentials-text {
+  font-size: 0.875rem;
+  color: #0c4a6e;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  margin: 0.25rem 0 0;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.login-form__options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.login-form__remember {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.login-form__remember input {
+  width: 16px;
+  height: 16px;
+  accent-color: #1e3a8a;
+}
+
+.login-form__forgot {
+  color: #1e3a8a;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.login-form__forgot:hover {
+  color: #1e40af;
+  text-decoration: underline;
+}
+
+.login-form__divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #94a3b8;
+  font-size: 0.875rem;
+}
+
+.login-form__divider::before,
+.login-form__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+}
+
+.login-form__social {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.login-form__social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.login-form__social-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.login-form__footer {
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.login-form__footer p {
+  color: #64748b;
+  font-size: 0.9375rem;
+  margin: 0;
+}
+
+.login-form__link {
+  color: #1e3a8a;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.login-form__link:hover {
+  color: #1e40af;
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .login-hero {
+    display: none;
+  }
+  
+  .login-form-container {
+    flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-form-container {
+    padding: 1.5rem;
+  }
+  
+  .login-form__title {
+    font-size: 1.75rem;
+  }
+  
+  .login-form__social {
+    grid-template-columns: 1fr;
+  }
+}

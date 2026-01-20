@@ -1,0 +1,11 @@
+{
+  "users": [
+    {
+      "id": "094f08b6-74f0-4d4b-9259-f1ae491aab12",
+      "email": "rodrigo.sanchezc@icloud.com",
+      "password": "$2a$10$WUkGUq4jcmoAVd8/Jyjrk.rEIyfrzFlqGw.VNw3sjzY/1kKT9Wrd6",
+      "createdAt": "2026-01-20T01:44:28.514Z",
+      "lastLogin": "2026-01-20T01:44:38.071Z"
+    }
+  ]
+}
