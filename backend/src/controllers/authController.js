@@ -195,9 +195,14 @@ exports.getCurrentUser = (req, res) => {
       });
     }
 
+    // Devolver información completa del usuario (incluyendo datos de GitHub si existen)
     res.json({
       id: user.id,
       email: user.email,
+      name: user.name || null,
+      avatarUrl: user.avatarUrl || null,
+      githubUsername: user.githubUsername || null,
+      provider: user.provider || 'local',
       createdAt: user.createdAt
     });
 

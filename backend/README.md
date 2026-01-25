@@ -11,13 +11,14 @@
 [![JWT](https://img.shields.io/badge/JWT-9.0.2-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
 [![bcrypt](https://img.shields.io/badge/bcrypt-2.4.3-4A154B?style=for-the-badge)](https://www.npmjs.com/package/bcryptjs)
 
+[![GitHub OAuth](https://img.shields.io/badge/GitHub-OAuth_2.0-181717?style=for-the-badge&logo=github&logoColor=white)](https://docs.github.com/en/developers/apps/building-oauth-apps)
 [![Architecture](https://img.shields.io/badge/Architecture-REST_API-FF6B6B?style=for-the-badge)](https://restfulapi.net/)
 [![Storage](https://img.shields.io/badge/Storage-JSON_File-F7931E?style=for-the-badge&logo=json&logoColor=white)](https://www.json.org/)
 [![License](https://img.shields.io/badge/License-MIT-22C55E?style=for-the-badge)](../LICENSE)
 
 <br/>
 
-**Servidor RESTful para autenticación de usuarios con gestión de sesiones mediante JSON Web Tokens y almacenamiento persistente en archivo local**
+**Servidor RESTful para autenticación de usuarios con autenticación local y OAuth 2.0 (GitHub), gestión de sesiones mediante JSON Web Tokens y almacenamiento persistente en archivo local**
 
 [Características](#-características) •
 [Arquitectura](#-arquitectura) •
@@ -44,11 +45,11 @@
 </td>
 <td width="50%">
 
-### ⚡ Rendimiento
-- **Express.js** optimizado
-- **Nodemon** para desarrollo
-- **CORS** configurado
-- **Logging** de peticiones
+### 🐙 OAuth 2.0
+- **GitHub OAuth** integración completa
+- **Authorization Code Flow** seguro
+- **Token Exchange** con GitHub API
+- **Usuarios unificados** en JWT
 
 </td>
 </tr>
@@ -59,7 +60,7 @@
 - **Archivo JSON** como base de datos
 - **UUID** para identificadores únicos
 - **Timestamps** automáticos
-- **Estructura normalizada**
+- **Usuarios locales y GitHub**
 
 </td>
 <td width="50%">
@@ -93,11 +94,17 @@ graph LR
     
     subgraph Routes["🛤️ Routes"]
         F[/api/auth/*]
-        G[/api/health]
+        G[/api/auth/github/*]
+        H2[/api/health]
     end
     
-    subgraph Controller["🎮 Controller"]
+    subgraph Controller["🎮 Controllers"]
         H[authController]
+        GC[githubAuthController]
+    end
+    
+    subgraph External["🐙 GitHub API"]
+        GH[GitHub OAuth]
     end
     
     subgraph Model["📊 Model"]
@@ -109,14 +116,19 @@ graph LR
     end
     
     A --> B --> C --> D --> F
+    A --> B --> C --> D --> G
     F --> E --> H
-    G --> H
+    G --> GC
+    GC --> GH
+    H2 --> H
     H --> I --> J
+    GC --> I
     
     style Request fill:#1e3a5f,stroke:#16213e,color:#fff
     style Middleware fill:#2d4a6f,stroke:#16213e,color:#fff
     style Routes fill:#3d5a8f,stroke:#16213e,color:#fff
     style Controller fill:#4d6a9f,stroke:#16213e,color:#fff
+    style External fill:#24292e,stroke:#16213e,color:#fff
     style Model fill:#5d7abf,stroke:#16213e,color:#fff
     style Storage fill:#6d8acf,stroke:#16213e,color:#fff
 ```
@@ -127,27 +139,28 @@ graph LR
 backend/
 │
 ├── 📂 src/
-│   ├── 📄 index.js              # Entry point del servidor
+│   ├── 📄 index.js                    # Entry point del servidor
 │   │
 │   ├── 📂 controllers/
-│   │   └── 📄 authController.js # Lógica de autenticación
+│   │   ├── 📄 authController.js       # Lógica de autenticación local
+│   │   └── 📄 githubAuthController.js # Lógica de OAuth con GitHub
 │   │
 │   ├── 📂 middleware/
-│   │   └── 📄 authMiddleware.js # Verificación de JWT
+│   │   └── 📄 authMiddleware.js       # Verificación de JWT
 │   │
 │   ├── 📂 models/
-│   │   └── 📄 userModel.js      # Operaciones CRUD usuarios
+│   │   └── 📄 userModel.js            # CRUD usuarios (local + GitHub)
 │   │
 │   ├── 📂 routes/
-│   │   └── 📄 authRoutes.js     # Definición de endpoints
+│   │   └── 📄 authRoutes.js           # Endpoints auth + OAuth
 │   │
 │   └── 📂 utils/
-│       └── 📄 validation.js     # Funciones de validación
+│       └── 📄 validation.js           # Funciones de validación
 │
 ├── 📂 data/
-│   └── 📄 users.json            # Base de datos local
+│   └── 📄 users.json                  # Base de datos local
 │
-├── 📄 .env                      # Variables de entorno
+├── 📄 .env                            # Variables de entorno (GitHub OAuth)
 ├── 📄 .env.example              # Plantilla de variables
 ├── 📄 .gitignore
 └── 📄 package.json
@@ -190,6 +203,10 @@ npm start
 | `PORT` | Puerto del servidor | `3001` |
 | `JWT_SECRET` | Clave secreta para firmar tokens | `agencia_viajes_oeste_secret_key_2024` |
 | `JWT_EXPIRES_IN` | Tiempo de expiración del token | `24h` |
+| `GITHUB_CLIENT_ID` | Client ID de la aplicación OAuth de GitHub | - |
+| `GITHUB_CLIENT_SECRET` | Client Secret de la aplicación OAuth de GitHub | - |
+| `GITHUB_CALLBACK_URL` | URL de callback para GitHub OAuth | `http://localhost:5173/auth/github/callback` |
+| `FRONTEND_URL` | URL del frontend | `http://localhost:5173` |
 
 ---
 
@@ -202,6 +219,8 @@ http://localhost:3001/api
 
 ### Endpoints Disponibles
 
+#### 🔐 Autenticación Local
+
 | Método | Endpoint | Descripción | Body | Auth |
 |:------:|----------|-------------|------|:----:|
 | `POST` | `/auth/register` | Registrar usuario | `{ email, password }` | ❌ |
@@ -210,6 +229,13 @@ http://localhost:3001/api
 | `GET` | `/auth/me` | Usuario actual | - | ✅ |
 | `GET` | `/auth/verify` | Verificar token | - | ✅ |
 | `GET` | `/health` | Health check | - | ❌ |
+
+#### 🐙 Autenticación con GitHub OAuth
+
+| Método | Endpoint | Descripción | Body | Auth |
+|:------:|----------|-------------|------|:----:|
+| `GET` | `/auth/github` | Obtener URL de autorización | - | ❌ |
+| `POST` | `/auth/github/callback` | Procesar callback de GitHub | `{ code }` | ❌ |
 
 ### Respuestas de Error
 
@@ -249,16 +275,26 @@ http://localhost:3001/api
 ---
 
 ### `src/controllers/authController.js`
-**Controlador con la lógica de negocio de autenticación**
+**Controlador con la lógica de negocio de autenticación local**
 
 | Método | Descripción Técnica |
 |--------|---------------------|
 | `register()` | Valida email/password, verifica unicidad, hashea con bcrypt, crea usuario en JSON, genera JWT y retorna token |
 | `login()` | Busca usuario por email, compara hash con bcrypt.compare(), actualiza lastLogin, genera JWT |
 | `logout()` | Extrae token del header Authorization, lo agrega al Set blacklist para invalidación |
-| `getCurrentUser()` | Usa req.user (inyectado por middleware) para buscar y retornar datos del usuario |
+| `getCurrentUser()` | Detecta tipo de usuario (local/GitHub) via `req.user` y retorna datos correspondientes |
 | `verifyToken()` | Simplemente confirma que el middleware validó el token exitosamente |
 | `isTokenBlacklisted()` | Función auxiliar que verifica si un token está en el Set de blacklist |
+
+---
+
+### `src/controllers/githubAuthController.js`
+**Controlador para autenticación OAuth 2.0 con GitHub**
+
+| Método | Descripción Técnica |
+|--------|---------------------|
+| `getGithubAuthUrl()` | Construye y retorna la URL de autorización de GitHub con client_id, redirect_uri y scope |
+| `handleGithubCallback()` | Recibe el código de autorización, lo intercambia por access_token con GitHub API, obtiene datos del usuario, crea/actualiza usuario en JSON y genera JWT |
 
 ---
 
@@ -282,14 +318,16 @@ http://localhost:3001/api
 ---
 
 ### `src/models/userModel.js`
-**Capa de abstracción para operaciones con usuarios**
+**Capa de abstracción para operaciones con usuarios (locales y GitHub)**
 
 | Método | Operación | Descripción |
 |--------|-----------|-------------|
 | `getAll()` | READ | Retorna array de todos los usuarios |
 | `findById(id)` | READ | Busca usuario por UUID |
 | `findByEmail(email)` | READ | Busca usuario por email (case insensitive) |
+| `findByGithubId(githubId)` | READ | Busca usuario por ID de GitHub |
 | `create(userData)` | CREATE | Genera UUID, timestamps, guarda en JSON |
+| `createGithubUser(githubData)` | CREATE | Crea usuario OAuth con datos de GitHub (id, login, email, avatar) |
 | `update(id, updates)` | UPDATE | Actualiza campos del usuario |
 | `updateLastLogin(id)` | UPDATE | Actualiza timestamp de último login |
 | `delete(id)` | DELETE | Elimina usuario del array |
@@ -302,12 +340,16 @@ http://localhost:3001/api
 ---
 
 ### `src/routes/authRoutes.js`
-**Definición de rutas de autenticación**
+**Definición de rutas de autenticación local y OAuth**
 
 ```javascript
-// Rutas públicas (sin middleware):
+// Rutas públicas - Autenticación Local:
 router.post('/register', authController.register);
 router.post('/login', authController.login);
+
+// Rutas públicas - GitHub OAuth:
+router.get('/github', githubAuthController.getGithubAuthUrl);
+router.post('/github/callback', githubAuthController.handleGithubCallback);
 
 // Rutas protegidas (con authenticateToken):
 router.post('/logout', authenticateToken, authController.logout);
@@ -329,7 +371,7 @@ router.get('/verify', authenticateToken, authController.verifyToken);
 ---
 
 ### `data/users.json`
-**Almacenamiento persistente de usuarios**
+**Almacenamiento persistente de usuarios (locales y GitHub)**
 
 ```json
 {
@@ -337,7 +379,17 @@ router.get('/verify', authenticateToken, authController.verifyToken);
     {
       "id": "uuid-v4",
       "email": "usuario@ejemplo.com",
-      "password": "$2a$10$...", // bcrypt hash
+      "password": "$2a$10$...",
+      "createdAt": "ISO-8601",
+      "lastLogin": "ISO-8601"
+    },
+    {
+      "id": "uuid-v4",
+      "githubId": 12345678,
+      "username": "github-username",
+      "email": "usuario@github.com",
+      "avatarUrl": "https://avatars.githubusercontent.com/...",
+      "provider": "github",
       "createdAt": "ISO-8601",
       "lastLogin": "ISO-8601"
     }

@@ -8,12 +8,13 @@
   font-weight: var(--font-weight-semibold);
   font-family: inherit;
   line-height: 1;
-  border: 2px solid transparent;
-  border-radius: var(--radius-md);
+  border: none;
+  border-radius: 12px;
   cursor: pointer;
-  transition: all var(--transition-fast);
-  min-height: 44px; /* Accessibility - touch target */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 48px;
   position: relative;
+  overflow: hidden;
 }
 
 .button:disabled {
@@ -26,36 +27,37 @@
   outline-offset: var(--focus-ring-offset);
 }
 
-/* Primary variant */
+/* Primary variant - Gradient Blue Style */
 .button--primary {
   color: white;
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
 }
 
 .button--primary:hover:not(:disabled) {
-  background-color: var(--color-primary-hover);
-  border-color: var(--color-primary-hover);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #1d4ed8 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
 }
 
 .button--primary:active:not(:disabled) {
   transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(59, 130, 246, 0.4);
 }
 
 /* Secondary variant */
 .button--secondary {
   color: var(--color-primary);
   background-color: transparent;
-  border-color: var(--color-primary);
+  border: 2px solid var(--color-primary);
 }
 
 .button--secondary:hover:not(:disabled) {
-  background-color: var(--color-primary);
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
   color: white;
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
 }
 
 .button--secondary:active:not(:disabled) {
@@ -70,12 +72,12 @@
 /* Loading spinner */
 .button__spinner {
   display: inline-block;
-  width: 16px;
-  height: 16px;
-  border: 2px solid currentColor;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
-  border-top-color: transparent;
-  animation: spinner 0.6s linear infinite;
+  border-top-color: white;
+  animation: spinner 0.7s linear infinite;
 }
 
 @keyframes spinner {

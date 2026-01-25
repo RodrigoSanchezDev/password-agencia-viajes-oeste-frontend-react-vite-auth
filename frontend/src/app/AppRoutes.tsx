@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { LoginPage, RegisterPage, DashboardPage } from '../features/auth/pages';
+import { LoginPage, RegisterPage, DashboardPage, GitHubCallbackPage } from '../features/auth/pages';
 import { ProtectedRoute } from './ProtectedRoute';
 
 export const AppRoutes: React.FC = () => {
@@ -9,6 +9,10 @@ export const AppRoutes: React.FC = () => {
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      
+      {/* GitHub OAuth Callback Route */}
+      <Route path="/auth/github/callback" element={<GitHubCallbackPage />} />
+      
       <Route
         path="/dashboard"
         element={

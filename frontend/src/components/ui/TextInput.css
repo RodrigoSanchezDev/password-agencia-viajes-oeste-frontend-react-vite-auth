@@ -12,6 +12,12 @@
   cursor: pointer;
 }
 
+.text-input__wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .text-input__field {
   width: 100%;
   padding: var(--spacing-md);
@@ -23,6 +29,10 @@
   border-radius: var(--radius-md);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   min-height: 44px; /* Accessibility - touch target */
+}
+
+.text-input__field--password {
+  padding-right: 48px;
 }
 
 .text-input__field:hover:not(:disabled) {
@@ -47,6 +57,32 @@
 
 .text-input__field--error:focus {
   box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+}
+
+.text-input__toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+  font-size: 1.25rem;
+}
+
+.text-input__toggle-password:hover {
+  color: #1e3a8a;
+}
+
+.text-input__toggle-password:focus {
+  outline: none;
+  color: #1e3a8a;
 }
 
 .text-input__helper {

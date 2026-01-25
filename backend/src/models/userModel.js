@@ -1,6 +1,7 @@
 /**
  * Modelo de Usuario
  * Gestiona el almacenamiento y operaciones de usuarios en archivo JSON
+ * Soporta usuarios locales y usuarios de GitHub OAuth
  */
 
 const fs = require('fs');
@@ -80,7 +81,15 @@ exports.findByEmail = (email) => {
 };
 
 /**
- * Crea un nuevo usuario
+ * Busca un usuario por GitHub ID
+ */
+exports.findByGithubId = (githubId) => {
+  const data = readUsers();
+  return data.users.find(user => user.githubId === githubId);
+};
+
+/**
+ * Crea un nuevo usuario (autenticación local)
  */
 exports.create = (userData) => {
   const data = readUsers();
@@ -89,6 +98,7 @@ exports.create = (userData) => {
     id: uuidv4(),
     email: userData.email.toLowerCase(),
     password: userData.password,
+    provider: 'local',
     createdAt: new Date().toISOString(),
     lastLogin: null
   };
@@ -96,7 +106,7 @@ exports.create = (userData) => {
   data.users.push(newUser);
   saveUsers(data);
   
-  console.log('[UserModel] Usuario creado:', newUser.email);
+  console.log('[UserModel] Usuario local creado:', newUser.email);
   return newUser;
 };
 
@@ -114,6 +124,76 @@ exports.updateLastLogin = (id) => {
   }
   
   return false;
+};
+
+/**
+ * Crea un nuevo usuario desde GitHub OAuth
+ */
+exports.createGithubUser = (githubData) => {
+  const data = readUsers();
+  
+  const newUser = {
+    id: uuidv4(),
+    email: githubData.email.toLowerCase(),
+    githubId: githubData.githubId,
+    githubUsername: githubData.githubUsername,
+    name: githubData.name,
+    avatarUrl: githubData.avatarUrl,
+    provider: 'github',
+    createdAt: new Date().toISOString(),
+    lastLogin: new Date().toISOString()
+  };
+
+  data.users.push(newUser);
+  saveUsers(data);
+  
+  console.log('[UserModel] Usuario de GitHub creado:', newUser.githubUsername);
+  return newUser;
+};
+
+/**
+ * Vincula una cuenta de GitHub a un usuario existente
+ */
+exports.linkGithubAccount = (userId, githubData) => {
+  const data = readUsers();
+  const userIndex = data.users.findIndex(user => user.id === userId);
+  
+  if (userIndex !== -1) {
+    data.users[userIndex] = {
+      ...data.users[userIndex],
+      githubId: githubData.githubId,
+      githubUsername: githubData.githubUsername,
+      avatarUrl: githubData.avatarUrl,
+      name: githubData.name || data.users[userIndex].name,
+      lastLogin: new Date().toISOString()
+    };
+    saveUsers(data);
+    console.log('[UserModel] Cuenta de GitHub vinculada:', githubData.githubUsername);
+    return data.users[userIndex];
+  }
+  
+  return null;
+};
+
+/**
+ * Actualiza información de GitHub del usuario
+ */
+exports.updateGithubInfo = (userId, githubData) => {
+  const data = readUsers();
+  const userIndex = data.users.findIndex(user => user.id === userId);
+  
+  if (userIndex !== -1) {
+    data.users[userIndex] = {
+      ...data.users[userIndex],
+      githubUsername: githubData.githubUsername || data.users[userIndex].githubUsername,
+      avatarUrl: githubData.avatarUrl || data.users[userIndex].avatarUrl,
+      name: githubData.name || data.users[userIndex].name
+    };
+    saveUsers(data);
+    return data.users[userIndex];
+  }
+  
+  return null;
 };
 
 /**

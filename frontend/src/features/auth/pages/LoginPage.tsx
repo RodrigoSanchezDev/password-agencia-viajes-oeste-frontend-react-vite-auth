@@ -8,8 +8,7 @@ import {
   HiOutlinePaperAirplane, 
   HiOutlineKey
 } from 'react-icons/hi';
-import { FcGoogle } from 'react-icons/fc';
-import { FaFacebook } from 'react-icons/fa';
+import { FaGithub } from 'react-icons/fa';
 import './LoginPage.css';
 
 export const LoginPage: React.FC = () => {
@@ -20,6 +19,7 @@ export const LoginPage: React.FC = () => {
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [apiError, setApiError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isGitHubLoading, setIsGitHubLoading] = useState(false);
 
   const successMessage = location.state?.message;
 
@@ -61,6 +61,23 @@ export const LoginPage: React.FC = () => {
       }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleGitHubLogin = async () => {
+    setApiError('');
+    setIsGitHubLoading(true);
+    
+    try {
+      await authService.loginWithGitHub();
+      // La redirección a GitHub se maneja en el servicio
+    } catch (error) {
+      if (error instanceof Error) {
+        setApiError(error.message);
+      } else {
+        setApiError('Error al conectar con GitHub. Por favor intenta nuevamente.');
+      }
+      setIsGitHubLoading(false);
     }
   };
 
@@ -163,13 +180,23 @@ export const LoginPage: React.FC = () => {
             </div>
 
             <div className="login-form__social">
-              <button type="button" className="login-form__social-btn">
-                <FcGoogle size={20} />
-                Google
-              </button>
-              <button type="button" className="login-form__social-btn">
-                <FaFacebook size={20} color="#1877F2" />
-                Facebook
+              <button 
+                type="button" 
+                className="login-form__social-btn login-form__social-btn--github"
+                onClick={handleGitHubLogin}
+                disabled={isGitHubLoading || isLoading}
+              >
+                {isGitHubLoading ? (
+                  <>
+                    <div className="login-form__social-spinner"></div>
+                    Conectando...
+                  </>
+                ) : (
+                  <>
+                    <FaGithub size={20} />
+                    Continuar con GitHub
+                  </>
+                )}
               </button>
             </div>
 

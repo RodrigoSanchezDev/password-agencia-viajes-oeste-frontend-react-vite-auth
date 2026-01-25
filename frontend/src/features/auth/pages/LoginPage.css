@@ -265,8 +265,8 @@
 }
 
 .login-form__social {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
 }
 
@@ -279,17 +279,50 @@
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 500;
   color: #334155;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.login-form__social-btn:hover {
+.login-form__social-btn:hover:not(:disabled) {
   background: #f8fafc;
   border-color: #cbd5e1;
   transform: translateY(-1px);
+}
+
+.login-form__social-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* GitHub Button Special Styles */
+.login-form__social-btn--github {
+  background: #24292f;
+  border-color: #24292f;
+  color: white;
+}
+
+.login-form__social-btn--github:hover:not(:disabled) {
+  background: #1b1f23;
+  border-color: #1b1f23;
+  box-shadow: 0 4px 12px rgba(36, 41, 47, 0.3);
+}
+
+.login-form__social-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: social-spin 0.8s linear infinite;
+}
+
+@keyframes social-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .login-form__footer {
@@ -333,9 +366,5 @@
   
   .login-form__title {
     font-size: 1.75rem;
-  }
-  
-  .login-form__social {
-    grid-template-columns: 1fr;
   }
 }

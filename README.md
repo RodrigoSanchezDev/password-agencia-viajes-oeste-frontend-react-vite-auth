@@ -13,11 +13,12 @@
 
 [![Express](https://img.shields.io/badge/Express-4.18.2-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
 [![JWT](https://img.shields.io/badge/JWT-Auth-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
+[![GitHub OAuth](https://img.shields.io/badge/GitHub-OAuth_2.0-181717?style=for-the-badge&logo=github&logoColor=white)](https://docs.github.com/en/developers/apps/building-oauth-apps)
 [![License](https://img.shields.io/badge/License-MIT-22C55E?style=for-the-badge)](LICENSE)
 
 <br/>
 
-**Sistema completo de autenticación con arquitectura cliente-servidor para gestión de sesiones seguras mediante JSON Web Tokens**
+**Sistema completo de autenticación con arquitectura cliente-servidor, autenticación local y OAuth 2.0 con GitHub para gestión de sesiones seguras mediante JSON Web Tokens**
 
 [Características](#-características) •
 [Arquitectura](#-arquitectura) •
@@ -44,11 +45,11 @@
 </td>
 <td width="50%">
 
-### ⚡ Rendimiento
-- **Vite HMR** - Hot Module Replacement instantáneo
-- **Lazy Loading** - Carga diferida de componentes
-- **Optimized Build** - Bundle optimizado para producción
-- **CORS Configurado** - Comunicación segura cross-origin
+### 🐙 OAuth 2.0
+- **GitHub OAuth** - Autenticación con terceros
+- **Flujo Authorization Code** - Implementación segura
+- **Unificación de Sesiones** - JWT para ambos proveedores
+- **Callback Handling** - Gestión de redirecciones
 
 </td>
 </tr>
@@ -64,11 +65,11 @@
 </td>
 <td width="50%">
 
-### 🗄️ Persistencia
-- **Almacenamiento JSON** - Base de datos local en archivo
-- **LocalStorage** - Persistencia de sesión en cliente
-- **Auto-sync** - Sincronización automática de datos
-- **Backup Ready** - Estructura lista para respaldo
+### ⚡ Rendimiento
+- **Vite HMR** - Hot Module Replacement instantáneo
+- **Lazy Loading** - Carga diferida de componentes
+- **Optimized Build** - Bundle optimizado para producción
+- **CORS Configurado** - Comunicación segura cross-origin
 
 </td>
 </tr>
@@ -84,14 +85,22 @@ graph TB
         A[LoginPage] --> B[authService]
         C[RegisterPage] --> B
         D[DashboardPage] --> B
+        GH[GitHubCallbackPage] --> B
         B --> E[apiClient]
         E --> F[localStorage]
     end
     
+    subgraph OAuth["🐙 GitHub OAuth"]
+        O[GitHub API]
+    end
+    
     subgraph Servidor["⚙️ Backend (Node.js + Express)"]
         G[authRoutes] --> H[authController]
+        G --> HC[githubAuthController]
         H --> I[authMiddleware]
         H --> J[userModel]
+        HC --> J
+        HC --> O
         J --> K[(users.json)]
         I --> L[JWT Verify]
     end
@@ -100,6 +109,7 @@ graph TB
     
     style Cliente fill:#1a1a2e,stroke:#16213e,color:#fff
     style Servidor fill:#0f3460,stroke:#16213e,color:#fff
+    style OAuth fill:#24292e,stroke:#16213e,color:#fff
 ```
 
 ### 📁 Estructura del Proyecto
@@ -189,7 +199,7 @@ npm run dev
 
 ## 📡 API Reference
 
-### Endpoints de Autenticación
+### Endpoints de Autenticación Local
 
 | Método | Endpoint | Descripción | Auth |
 |:------:|----------|-------------|:----:|
@@ -199,6 +209,13 @@ npm run dev
 | `GET` | `/api/auth/me` | Obtener usuario actual | ✅ |
 | `GET` | `/api/auth/verify` | Verificar validez del token | ✅ |
 | `GET` | `/api/health` | Health check del servidor | ❌ |
+
+### Endpoints de GitHub OAuth
+
+| Método | Endpoint | Descripción | Auth |
+|:------:|----------|-------------|:----:|
+| `GET` | `/api/auth/github` | Obtener URL de autorización de GitHub | ❌ |
+| `POST` | `/api/auth/github/callback` | Procesar callback OAuth y generar JWT | ❌ |
 
 ### Ejemplos de Peticiones
 
@@ -269,7 +286,7 @@ curl -X POST http://localhost:3001/api/auth/logout \
 
 ## 📋 Documentación Técnica
 
-### 🔄 Flujo de Autenticación
+### 🔄 Flujo de Autenticación Local
 
 ```mermaid
 sequenceDiagram
@@ -284,6 +301,34 @@ sequenceDiagram
     B->>DB: Buscar usuario
     DB-->>B: Usuario encontrado
     B->>B: Verificar password (bcrypt)
+    B->>B: Generar JWT
+    B-->>F: { token, user }
+    F->>F: Guardar en localStorage
+    F-->>U: Redirigir a Dashboard
+```
+
+### 🐙 Flujo de Autenticación GitHub OAuth
+
+```mermaid
+sequenceDiagram
+    participant U as Usuario
+    participant F as Frontend
+    participant B as Backend
+    participant GH as GitHub API
+    participant DB as users.json
+
+    U->>F: Click "Continuar con GitHub"
+    F->>B: GET /api/auth/github
+    B-->>F: { authUrl }
+    F->>GH: Redirect a authUrl
+    U->>GH: Autoriza aplicación
+    GH-->>F: Redirect con ?code=xxx
+    F->>B: POST /api/auth/github/callback { code }
+    B->>GH: Exchange code por access_token
+    GH-->>B: { access_token }
+    B->>GH: GET /user (con token)
+    GH-->>B: { id, login, email, avatar_url }
+    B->>DB: Buscar/Crear usuario GitHub
     B->>B: Generar JWT
     B-->>F: { token, user }
     F->>F: Guardar en localStorage
@@ -345,24 +390,26 @@ sequenceDiagram
 | Archivo | Descripción Técnica |
 |---------|---------------------|
 | `src/index.js` | Punto de entrada del servidor. Configura Express, middleware CORS, parseo JSON y monta las rutas de autenticación |
-| `src/routes/authRoutes.js` | Define los endpoints REST para registro, login, logout y verificación de tokens |
+| `src/routes/authRoutes.js` | Define los endpoints REST para autenticación local y OAuth con GitHub |
 | `src/controllers/authController.js` | Implementa la lógica de negocio: hashing de contraseñas, generación de JWT y gestión de blacklist |
+| `src/controllers/githubAuthController.js` | Controlador para OAuth 2.0 con GitHub: genera URL de autorización e intercambia código por token |
 | `src/middleware/authMiddleware.js` | Interceptor que valida el token JWT en headers Authorization y verifica blacklist |
-| `src/models/userModel.js` | Capa de abstracción para operaciones CRUD sobre el archivo `users.json` |
+| `src/models/userModel.js` | Capa de abstracción para operaciones CRUD sobre usuarios locales y GitHub |
 | `src/utils/validation.js` | Funciones de validación: regex de email y políticas de contraseña |
-| `data/users.json` | Almacenamiento persistente de usuarios en formato JSON |
+| `data/users.json` | Almacenamiento persistente de usuarios (locales y GitHub) en formato JSON |
 
 ### Frontend
 
 | Archivo | Descripción Técnica |
 |---------|---------------------|
 | `src/api/client.ts` | Cliente HTTP configurado para comunicación con el backend. Gestiona headers Authorization y manejo de errores |
-| `src/app/AppRoutes.tsx` | Configuración de React Router con rutas públicas y protegidas |
+| `src/app/AppRoutes.tsx` | Configuración de React Router con rutas públicas, protegidas y callback de OAuth |
 | `src/app/ProtectedRoute.tsx` | HOC que verifica existencia de token antes de renderizar rutas privadas |
-| `src/features/auth/services/authService.ts` | Servicio que encapsula llamadas a la API y gestión del token en localStorage |
-| `src/features/auth/pages/LoginPage.tsx` | Componente de página con formulario de login, validación y manejo de estados |
-| `src/features/auth/pages/RegisterPage.tsx` | Componente de página con formulario de registro y redirección post-registro |
-| `src/features/auth/pages/DashboardPage.tsx` | Vista protegida que muestra información del usuario autenticado |
+| `src/features/auth/services/authService.ts` | Servicio que encapsula llamadas a la API, autenticación local y OAuth con GitHub |
+| `src/features/auth/pages/LoginPage.tsx` | Componente de página con formulario de login y botón de GitHub OAuth |
+| `src/features/auth/pages/RegisterPage.tsx` | Componente de página con formulario de registro y confirmación de contraseña |
+| `src/features/auth/pages/GitHubCallbackPage.tsx` | Componente que procesa el callback de GitHub OAuth y gestiona estados de carga/error |
+| `src/features/auth/pages/DashboardPage.tsx` | Vista protegida que muestra información del usuario (local o GitHub) |
 | `src/utils/storage.ts` | Helpers para operaciones con localStorage (get/set/clear token) |
 | `src/utils/validation.ts` | Funciones de validación reutilizables para formularios |
 

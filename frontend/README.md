@@ -11,13 +11,14 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React Router](https://img.shields.io/badge/React_Router-7.12.0-CA4245?style=for-the-badge&logo=reactrouter&logoColor=white)](https://reactrouter.com/)
 
+[![GitHub OAuth](https://img.shields.io/badge/GitHub-OAuth_2.0-181717?style=for-the-badge&logo=github&logoColor=white)](https://docs.github.com/en/developers/apps/building-oauth-apps)
 [![CSS3](https://img.shields.io/badge/CSS3-Modules-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
 [![ESLint](https://img.shields.io/badge/ESLint-9.39.1-4B32C3?style=for-the-badge&logo=eslint&logoColor=white)](https://eslint.org/)
 [![License](https://img.shields.io/badge/License-MIT-22C55E?style=for-the-badge)](../LICENSE)
 
 <br/>
 
-**Aplicación SPA moderna con autenticación, rutas protegidas y diseño responsive para la gestión de sesiones de usuario**
+**Aplicación SPA moderna con autenticación local y OAuth 2.0 (GitHub), rutas protegidas y diseño responsive para la gestión de sesiones de usuario**
 
 [Características](#-características) •
 [Arquitectura](#-arquitectura) •
@@ -35,13 +36,24 @@
 <tr>
 <td width="50%">
 
-### ⚡ Rendimiento
-- **Vite** - Build tool ultrarrápido
-- **HMR** - Hot Module Replacement
-- **Code Splitting** - Lazy loading automático
-- **Tree Shaking** - Bundle optimizado
+### 🔐 Autenticación
+- **Login Local** - Email y contraseña
+- **GitHub OAuth** - Autenticación social
+- **JWT Storage** - Token en localStorage
+- **Protected Routes** - HOC de verificación
 
 </td>
+<td width="50%">
+
+### 🐙 OAuth 2.0
+- **GitHub Integration** - Login con un click
+- **Callback Handler** - Gestión de redirecciones
+- **Estado de Carga** - UX durante autenticación
+- **Error Handling** - Manejo de errores OAuth
+
+</td>
+</tr>
+<tr>
 <td width="50%">
 
 ### 🎨 UI/UX
@@ -49,17 +61,6 @@
 - **Design Tokens** - Variables CSS centralizadas
 - **Animaciones** - Transiciones suaves
 - **Accesibilidad** - WCAG 2.1 AA compliant
-
-</td>
-</tr>
-<tr>
-<td width="50%">
-
-### 🔐 Autenticación
-- **JWT Storage** - Token en localStorage
-- **Protected Routes** - HOC de verificación
-- **Auto Redirect** - Redirección inteligente
-- **Session Persistence** - Estado persistente
 
 </td>
 <td width="50%">
@@ -89,6 +90,7 @@ graph TB
     subgraph Routes["🛤️ Routing"]
         D --> E[LoginPage]
         D --> F[RegisterPage]
+        D --> GHC[GitHubCallbackPage]
         D --> G[ProtectedRoute]
         G --> H[DashboardPage]
     end
@@ -96,6 +98,7 @@ graph TB
     subgraph Services["⚙️ Services"]
         I[authService] --> J[apiClient]
         J --> K[Backend API]
+        J --> GH[GitHub OAuth]
     end
     
     subgraph Storage["💾 Storage"]
@@ -105,6 +108,7 @@ graph TB
     
     E --> I
     F --> I
+    GHC --> I
     H --> I
     I --> M --> L
     
@@ -143,11 +147,12 @@ frontend/
 │   ├── 📂 features/
 │   │   └── 📂 auth/
 │   │       ├── 📂 pages/
-│   │       │   ├── 📄 LoginPage.tsx
+│   │       │   ├── 📄 LoginPage.tsx         # Login local + botón GitHub
 │   │       │   ├── 📄 RegisterPage.tsx
+│   │       │   ├── 📄 GitHubCallbackPage.tsx # Handler OAuth callback
 │   │       │   └── 📄 DashboardPage.tsx
 │   │       ├── 📂 services/
-│   │       │   └── 📄 authService.ts
+│   │       │   └── 📄 authService.ts        # Auth local + GitHub OAuth
 │   │       └── 📂 types/
 │   │           └── 📄 index.ts
 │   │
@@ -262,9 +267,10 @@ npm run preview
 
 | Página | Ruta | Protegida | Descripción |
 |--------|------|:---------:|-------------|
-| `LoginPage` | `/login` | ❌ | Formulario de inicio de sesión |
-| `RegisterPage` | `/register` | ❌ | Formulario de registro |
-| `DashboardPage` | `/dashboard` | ✅ | Panel principal del usuario |
+| `LoginPage` | `/login` | ❌ | Formulario de inicio de sesión + botón GitHub OAuth |
+| `RegisterPage` | `/register` | ❌ | Formulario de registro con confirmación de contraseña |
+| `GitHubCallbackPage` | `/auth/github/callback` | ❌ | Procesa el callback de GitHub OAuth |
+| `DashboardPage` | `/dashboard` | ✅ | Panel principal del usuario (local o GitHub) |
 
 ---
 
@@ -311,13 +317,14 @@ npm run preview
 ---
 
 ### `src/app/AppRoutes.tsx`
-**Configuración del sistema de rutas**
+**Configuración del sistema de rutas (incluye OAuth callback)**
 
 ```typescript
 // Rutas definidas:
 // "/" → Redirect a /login
-// "/login" → LoginPage
-// "/register" → RegisterPage  
+// "/login" → LoginPage (con botón GitHub)
+// "/register" → RegisterPage
+// "/auth/github/callback" → GitHubCallbackPage (OAuth handler)
 // "/dashboard" → ProtectedRoute → DashboardPage
 // "*" → Redirect a /login
 ```
@@ -337,18 +344,21 @@ npm run preview
 ---
 
 ### `src/features/auth/services/authService.ts`
-**Servicio de autenticación**
+**Servicio de autenticación (local + GitHub OAuth)**
 
 | Método | Descripción Técnica |
 |--------|---------------------|
 | `login(credentials)` | POST /login, guarda token en localStorage, retorna respuesta |
 | `register(data)` | POST /register, NO guarda token (usuario debe hacer login) |
 | `logout()` | POST /logout con token, limpia localStorage siempre (incluso si falla) |
+| `loginWithGitHub()` | GET /auth/github, retorna URL de autorización de GitHub |
+| `handleGitHubCallback(code)` | POST /auth/github/callback, intercambia código por JWT |
+| `getGitHubUser()` | Obtiene datos del usuario GitHub autenticado |
 
 ---
 
 ### `src/features/auth/pages/LoginPage.tsx`
-**Página de inicio de sesión**
+**Página de inicio de sesión con autenticación local y GitHub OAuth**
 
 | Estado | Tipo | Descripción |
 |--------|------|-------------|
@@ -361,6 +371,26 @@ npm run preview
 **Funciones:**
 - `validate()` - Validación de campos antes de submit
 - `handleSubmit()` - Llama authService.login y navega a /dashboard
+- `handleGitHubLogin()` - Obtiene URL de GitHub y redirige al usuario
+
+---
+
+### `src/features/auth/pages/GitHubCallbackPage.tsx`
+**Página de callback para GitHub OAuth**
+
+| Estado | Tipo | Descripción |
+|--------|------|-------------|
+| `status` | `'loading' \| 'success' \| 'error'` | Estado del proceso OAuth |
+| `errorMessage` | `string` | Mensaje de error si falla |
+
+**Flujo:**
+1. Extrae el parámetro `code` de la URL
+2. Envía el código al backend via `authService.handleGitHubCallback()`
+3. Si éxito: guarda token y redirige a `/dashboard`
+4. Si error: muestra mensaje y enlace a `/login`
+
+**Protección contra doble llamada:**
+- Usa `useRef` para evitar llamadas duplicadas en React StrictMode
 
 ---
 
@@ -377,12 +407,14 @@ npm run preview
 ---
 
 ### `src/features/auth/pages/DashboardPage.tsx`
-**Panel principal del usuario autenticado**
+**Panel principal del usuario autenticado (local o GitHub)**
 
 ```typescript
 // Características:
 // - Obtiene datos del usuario via GET /me
-// - Muestra email del usuario en mensaje de bienvenida
+// - Detecta tipo de usuario (local vs GitHub)
+// - Muestra avatar y username para usuarios GitHub
+// - Muestra badge "GitHub" para usuarios OAuth
 // - Botón de logout que llama authService.logout()
 // - Sidebar con navegación
 // - Cards de estadísticas y destinos
@@ -416,7 +448,7 @@ npm run preview
 ---
 
 ### `src/features/auth/types/index.ts`
-**Definiciones de tipos TypeScript**
+**Definiciones de tipos TypeScript (incluye GitHub OAuth)**
 
 ```typescript
 interface LoginRequest {
@@ -436,6 +468,24 @@ interface AuthResponse {
 
 interface User {
   email: string;
+}
+
+// GitHub OAuth Types
+interface GitHubAuthUrlResponse {
+  authUrl: string;
+}
+
+interface GitHubCallbackRequest {
+  code: string;
+}
+
+interface GitHubUser {
+  id: string;
+  githubId: number;
+  username: string;
+  email: string | null;
+  avatarUrl: string;
+  provider: 'github';
 }
 ```
 
@@ -467,6 +517,7 @@ interface User {
 
 ## 🔄 Flujo de Datos
 
+### Autenticación Local
 ```mermaid
 sequenceDiagram
     participant U as Usuario
@@ -486,6 +537,36 @@ sequenceDiagram
     S->>L: setToken(token)
     S-->>P: AuthResponse
     P->>P: navigate('/dashboard')
+```
+
+### Autenticación GitHub OAuth
+```mermaid
+sequenceDiagram
+    participant U as Usuario
+    participant L as LoginPage
+    participant S as authService
+    participant GH as GitHub
+    participant CB as GitHubCallbackPage
+    participant B as Backend
+    participant LS as localStorage
+
+    U->>L: Click "Continuar con GitHub"
+    L->>S: loginWithGitHub()
+    S->>B: GET /auth/github
+    B-->>S: { authUrl }
+    S-->>L: authUrl
+    L->>GH: window.location = authUrl
+    U->>GH: Autoriza aplicación
+    GH-->>CB: Redirect ?code=xxx
+    CB->>S: handleGitHubCallback(code)
+    S->>B: POST /auth/github/callback
+    B->>GH: Exchange code → token
+    GH-->>B: { access_token }
+    B->>GH: GET /user
+    GH-->>B: userData
+    B-->>S: { token, user }
+    S->>LS: setToken(token)
+    CB->>CB: navigate('/dashboard')
 ```
 
 ---

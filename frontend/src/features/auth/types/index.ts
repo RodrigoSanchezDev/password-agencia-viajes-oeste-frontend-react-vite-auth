@@ -12,9 +12,36 @@ export interface RegisterRequest {
 
 export interface AuthResponse {
   token: string;
-  id?: number;
+  id?: string;
+  message?: string;
+  user?: GitHubUser;
+}
+
+export interface GitHubAuthResponse {
+  token: string;
+  message: string;
+  user: GitHubUser;
+}
+
+export interface GitHubUser {
+  id: string;
+  email: string;
+  name?: string;
+  avatarUrl?: string;
+  githubUsername?: string;
+  provider: 'github' | 'local';
+}
+
+export interface GitHubAuthUrlResponse {
+  authUrl: string;
 }
 
 export interface User {
+  id?: string;
   email: string;
+  name?: string;
+  avatarUrl?: string;
+  githubUsername?: string;
+  provider?: 'github' | 'local';
+  createdAt?: string;
 }

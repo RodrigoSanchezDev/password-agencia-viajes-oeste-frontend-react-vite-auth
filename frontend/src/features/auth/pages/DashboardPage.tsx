@@ -19,12 +19,17 @@ import {
   HiOutlineArrowRight
 } from 'react-icons/hi';
 import { FiTarget } from 'react-icons/fi';
+import { FaGithub } from 'react-icons/fa';
 import './DashboardPage.css';
 
 // Tipo para la respuesta del usuario
 interface UserResponse {
   id: string;
   email: string;
+  name?: string;
+  avatarUrl?: string;
+  githubUsername?: string;
+  provider?: 'github' | 'local';
   createdAt: string;
 }
 
@@ -55,13 +60,33 @@ const getStatIcon = (iconName: string) => {
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const [userEmail, setUserEmail] = useState<string>('');
+  const [userName, setUserName] = useState<string>('');
+  const [userAvatar, setUserAvatar] = useState<string>('');
+  const [githubUsername, setGithubUsername] = useState<string>('');
+  const [isGitHubUser, setIsGitHubUser] = useState<boolean>(false);
 
   // Obtener información del usuario al cargar
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const user = await apiClient.get<UserResponse>('/me');
-        setUserEmail(user.email);
+        // Primero verificar si hay datos de GitHub almacenados localmente
+        const githubUser = authService.getGitHubUser();
+        
+        if (githubUser) {
+          setUserEmail(githubUser.email);
+          setUserName(githubUser.name || githubUser.githubUsername || '');
+          setUserAvatar(githubUser.avatarUrl || '');
+          setGithubUsername(githubUser.githubUsername || '');
+          setIsGitHubUser(true);
+        } else {
+          // Si no hay datos de GitHub, obtener del servidor
+          const user = await apiClient.get<UserResponse>('/me');
+          setUserEmail(user.email);
+          setUserName(user.name || '');
+          setUserAvatar(user.avatarUrl || '');
+          setGithubUsername(user.githubUsername || '');
+          setIsGitHubUser(user.provider === 'github');
+        }
       } catch (error) {
         console.log('Error al obtener usuario:', error);
       }
@@ -124,9 +149,18 @@ export const DashboardPage: React.FC = () => {
         <header className="dashboard__header">
           <div className="dashboard__header-content">
             <div>
-              <h1 className="dashboard__greeting">¡Bienvenido/a!</h1>
+              <h1 className="dashboard__greeting">
+                ¡Bienvenido{userName ? `, ${userName}` : ''}!
+              </h1>
               <p className="dashboard__greeting-sub">
-                {userEmail ? `Sesión iniciada como: ${userEmail}` : '¿Listo para tu próxima aventura?'}
+                {isGitHubUser ? (
+                  <span className="dashboard__github-badge">
+                    <FaGithub className="dashboard__github-icon" />
+                    Conectado como @{githubUsername}
+                  </span>
+                ) : (
+                  userEmail ? `Sesión iniciada como: ${userEmail}` : '¿Listo para tu próxima aventura?'
+                )}
               </p>
             </div>
             <div className="dashboard__header-actions">
@@ -139,7 +173,16 @@ export const DashboardPage: React.FC = () => {
                 <span className="dashboard__notification-badge">3</span>
               </button>
               <div className="dashboard__avatar">
-                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=traveler" alt="Avatar" />
+                {userAvatar ? (
+                  <img src={userAvatar} alt="Avatar" />
+                ) : (
+                  <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=traveler" alt="Avatar" />
+                )}
+                {isGitHubUser && (
+                  <div className="dashboard__avatar-badge">
+                    <FaGithub />
+                  </div>
+                )}
               </div>
             </div>
           </div>

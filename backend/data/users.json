@@ -6,6 +6,25 @@
       "password": "$2a$10$WUkGUq4jcmoAVd8/Jyjrk.rEIyfrzFlqGw.VNw3sjzY/1kKT9Wrd6",
       "createdAt": "2026-01-20T01:44:28.514Z",
       "lastLogin": "2026-01-20T01:44:38.071Z"
+    },
+    {
+      "id": "8af61a7e-21fd-4ac7-9fb9-319c87f9dfb7",
+      "email": "rodrigo@sanchezdev.com",
+      "githubId": "165536509",
+      "githubUsername": "RodrigoSanchezDev",
+      "name": "Rodrigo Sanchez",
+      "avatarUrl": "https://avatars.githubusercontent.com/u/165536509?v=4",
+      "provider": "github",
+      "createdAt": "2026-01-25T03:42:20.731Z",
+      "lastLogin": "2026-01-25T04:12:05.112Z"
+    },
+    {
+      "id": "590767da-2588-43f8-8a01-7dbbf2600d53",
+      "email": "no@no.cl",
+      "password": "$2a$10$mB/5kdjFrXgXvBynmvjSyO8Zmm20DOcwM9Zpw5xSj2SMirysgvpfS",
+      "provider": "local",
+      "createdAt": "2026-01-25T04:09:19.117Z",
+      "lastLogin": "2026-01-25T04:09:35.703Z"
     }
   ]
 }

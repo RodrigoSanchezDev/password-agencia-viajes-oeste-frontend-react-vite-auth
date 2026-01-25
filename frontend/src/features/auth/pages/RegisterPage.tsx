@@ -16,12 +16,13 @@ export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string }>({});
   const [apiError, setApiError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
 
   const validate = (): boolean => {
-    const newErrors: { email?: string; password?: string } = {};
+    const newErrors: { email?: string; password?: string; confirmPassword?: string } = {};
 
     if (!validateRequired(email)) {
       newErrors.email = 'El email es requerido';
@@ -33,6 +34,12 @@ export const RegisterPage: React.FC = () => {
       newErrors.password = 'La contraseña es requerida';
     } else if (password.length < 6) {
       newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
+    }
+
+    if (!validateRequired(confirmPassword)) {
+      newErrors.confirmPassword = 'Debes confirmar la contraseña';
+    } else if (password !== confirmPassword) {
+      newErrors.confirmPassword = 'Las contraseñas no coinciden';
     }
 
     setErrors(newErrors);
@@ -108,6 +115,17 @@ export const RegisterPage: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               error={errors.password}
               placeholder="Mínimo 6 caracteres"
+              required
+              autoComplete="new-password"
+            />
+
+            <TextInput
+              label="Confirmar contraseña"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              error={errors.confirmPassword}
+              placeholder="Repite tu contraseña"
               required
               autoComplete="new-password"
             />
