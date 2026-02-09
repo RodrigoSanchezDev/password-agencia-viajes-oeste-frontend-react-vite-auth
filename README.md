@@ -1,7 +1,7 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,14,16,18,20&height=180&section=header&text=Agencia%20de%20Viajes%20Oeste&fontSize=42&fontColor=fff&animation=twinkling&fontAlignY=35&desc=Sistema%20de%20Autenticación%20Full%20Stack&descSize=18&descAlignY=55">
-  <source media="(prefers-color-scheme: light)" srcset="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,14,16,18,20&height=180&section=header&text=Agencia%20de%20Viajes%20Oeste&fontSize=42&fontColor=fff&animation=twinkling&fontAlignY=35&desc=Sistema%20de%20Autenticación%20Full%20Stack&descSize=18&descAlignY=55">
-  <img alt="Header" src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,14,16,18,20&height=180&section=header&text=Agencia%20de%20Viajes%20Oeste&fontSize=42&fontColor=fff&animation=twinkling&fontAlignY=35&desc=Sistema%20de%20Autenticación%20Full%20Stack&descSize=18&descAlignY=55" width="100%">
+  <source media="(prefers-color-scheme: dark)" srcset="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,14,16,18,20&height=180&section=header&text=Agencia%20de%20Viajes%20Oeste&fontSize=42&fontColor=fff&animation=twinkling&fontAlignY=35&desc=Sistema%20de%20Autenticación%20y%20Gestión%20SSR&descSize=18&descAlignY=55">
+  <source media="(prefers-color-scheme: light)" srcset="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,14,16,18,20&height=180&section=header&text=Agencia%20de%20Viajes%20Oeste&fontSize=42&fontColor=fff&animation=twinkling&fontAlignY=35&desc=Sistema%20de%20Autenticación%20y%20Gestión%20SSR&descSize=18&descAlignY=55">
+  <img alt="Header" src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,14,16,18,20&height=180&section=header&text=Agencia%20de%20Viajes%20Oeste&fontSize=42&fontColor=fff&animation=twinkling&fontAlignY=35&desc=Sistema%20de%20Autenticación%20y%20Gestión%20SSR&descSize=18&descAlignY=55" width="100%">
 </picture>
 
 <div align="center">
@@ -14,17 +14,19 @@
 [![Express](https://img.shields.io/badge/Express-4.18.2-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
 [![JWT](https://img.shields.io/badge/JWT-Auth-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
 [![GitHub OAuth](https://img.shields.io/badge/GitHub-OAuth_2.0-181717?style=for-the-badge&logo=github&logoColor=white)](https://docs.github.com/en/developers/apps/building-oauth-apps)
+[![SSR](https://img.shields.io/badge/SSR-Server_Side_Rendering-22C55E?style=for-the-badge&logo=server&logoColor=white)](#-módulo-de-solicitudes-de-viaje-ssr)
 [![License](https://img.shields.io/badge/License-MIT-22C55E?style=for-the-badge)](LICENSE)
 
 <br/>
 
-**Sistema completo de autenticación con arquitectura cliente-servidor, autenticación local y OAuth 2.0 con GitHub para gestión de sesiones seguras mediante JSON Web Tokens**
+**Sistema completo de autenticación con arquitectura cliente-servidor, autenticación local, OAuth 2.0 con GitHub y gestión de solicitudes de viaje con Server-Side Rendering (SSR)**
 
 [Características](#-características) •
 [Arquitectura](#-arquitectura) •
 [Instalación](#-instalación) •
+[SSR](#-módulo-de-solicitudes-de-viaje-ssr) •
 [API Reference](#-api-reference) •
-[Documentación](#-documentación)
+[Documentación](#-documentación-técnica)
 
 </div>
 
@@ -56,11 +58,31 @@
 <tr>
 <td width="50%">
 
+### 🖥️ Server-Side Rendering (SSR)
+- **HTML desde Servidor** - El backend genera el contenido
+- **Estilos Inline** - CSS embebido en la respuesta
+- **Estadísticas en Tiempo Real** - Calculadas en servidor
+- **Validaciones Servidor** - Verificación de datos server-side
+
+</td>
+<td width="50%">
+
 ### 🎨 UI/UX
 - **Diseño Responsive** - Adaptable a todos los dispositivos
 - **Validación en Tiempo Real** - Feedback inmediato al usuario
 - **Alertas Animadas** - Notificaciones de éxito/error
 - **Accesibilidad WCAG** - Estándares de accesibilidad
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### ✈️ Gestión de Viajes
+- **Formulario Completo** - Todos los campos requeridos
+- **Búsqueda Inteligente** - Selectores con filtro
+- **Estados de Solicitud** - Pendiente/En Proceso/Finalizada
+- **Persistencia JSON** - Almacenamiento local de datos
 
 </td>
 <td width="50%">
@@ -86,7 +108,10 @@ graph TB
         C[RegisterPage] --> B
         D[DashboardPage] --> B
         GH[GitHubCallbackPage] --> B
+        TR[TravelRequestListPage] --> TRS[travelRequestService]
+        TRF[TravelRequestFormPage] --> TRS
         B --> E[apiClient]
+        TRS --> E
         E --> F[localStorage]
     end
     
@@ -97,19 +122,26 @@ graph TB
     subgraph Servidor["⚙️ Backend (Node.js + Express)"]
         G[authRoutes] --> H[authController]
         G --> HC[githubAuthController]
+        TRR[travelRequestRoutes] --> TRC[travelRequestController]
         H --> I[authMiddleware]
+        TRR --> I
         H --> J[userModel]
         HC --> J
+        TRC --> TRM[travelRequestModel]
         HC --> O
         J --> K[(users.json)]
+        TRM --> KT[(travel-requests.json)]
         I --> L[JWT Verify]
+        TRC --> SSR[SSR HTML Generator]
     end
     
     E <-->|HTTP/JSON| G
+    E <-->|HTTP/HTML| TRR
     
     style Cliente fill:#1a1a2e,stroke:#16213e,color:#fff
     style Servidor fill:#0f3460,stroke:#16213e,color:#fff
     style OAuth fill:#24292e,stroke:#16213e,color:#fff
+    style SSR fill:#2d5016,stroke:#16213e,color:#fff
 ```
 
 ### 📁 Estructura del Proyecto
@@ -122,7 +154,16 @@ agencia-viajes-oeste/
 │   │   ├── 📂 api/                 # Capa de comunicación HTTP
 │   │   ├── 📂 app/                 # Configuración de rutas
 │   │   ├── 📂 components/          # Componentes reutilizables
+│   │   │   └── 📂 ui/              # Select, RadioGroup, SearchSelect, etc.
 │   │   ├── 📂 features/            # Módulos por funcionalidad
+│   │   │   ├── 📂 auth/            # Autenticación (login, registro, OAuth)
+│   │   │   │   ├── 📂 pages/       # LoginPage, RegisterPage, Dashboard
+│   │   │   │   ├── 📂 services/    # authService.ts
+│   │   │   │   └── 📂 types/       # Tipos TypeScript
+│   │   │   └── 📂 travel-requests/ # Solicitudes de Viaje (SSR)
+│   │   │       ├── 📂 pages/       # TravelRequestListPage, FormPage
+│   │   │       ├── 📂 services/    # travelRequestService.ts
+│   │   │       └── 📂 types/       # Tipos de solicitudes
 │   │   ├── 📂 styles/              # Design tokens y estilos
 │   │   └── 📂 utils/               # Utilidades y helpers
 │   └── 📄 package.json
@@ -130,11 +171,20 @@ agencia-viajes-oeste/
 ├── 📂 backend/                     # Servidor API REST
 │   ├── 📂 src/
 │   │   ├── 📂 controllers/         # Lógica de negocio
+│   │   │   ├── 📄 authController.js
+│   │   │   ├── 📄 githubAuthController.js
+│   │   │   └── 📄 travelRequestController.js  # SSR Generator
 │   │   ├── 📂 middleware/          # Interceptores de peticiones
 │   │   ├── 📂 models/              # Capa de datos
+│   │   │   ├── 📄 userModel.js
+│   │   │   └── 📄 travelRequestModel.js
 │   │   ├── 📂 routes/              # Definición de endpoints
+│   │   │   ├── 📄 authRoutes.js
+│   │   │   └── 📄 travelRequestRoutes.js
 │   │   └── 📂 utils/               # Funciones auxiliares
 │   ├── 📂 data/                    # Almacenamiento persistente
+│   │   ├── 📄 users.json           # Usuarios registrados
+│   │   └── 📄 travel-requests.json # Solicitudes de viaje
 │   └── 📄 package.json
 │
 └── 📄 README.md
@@ -389,14 +439,18 @@ sequenceDiagram
 
 | Archivo | Descripción Técnica |
 |---------|---------------------|
-| `src/index.js` | Punto de entrada del servidor. Configura Express, middleware CORS, parseo JSON y monta las rutas de autenticación |
+| `src/index.js` | Punto de entrada del servidor. Configura Express, middleware CORS, parseo JSON y monta las rutas de autenticación y solicitudes |
 | `src/routes/authRoutes.js` | Define los endpoints REST para autenticación local y OAuth con GitHub |
+| `src/routes/travelRequestRoutes.js` | Define los endpoints REST para solicitudes de viaje y SSR |
 | `src/controllers/authController.js` | Implementa la lógica de negocio: hashing de contraseñas, generación de JWT y gestión de blacklist |
 | `src/controllers/githubAuthController.js` | Controlador para OAuth 2.0 con GitHub: genera URL de autorización e intercambia código por token |
+| `src/controllers/travelRequestController.js` | Controlador de solicitudes de viaje: CRUD completo y generación de HTML SSR |
 | `src/middleware/authMiddleware.js` | Interceptor que valida el token JWT en headers Authorization y verifica blacklist |
 | `src/models/userModel.js` | Capa de abstracción para operaciones CRUD sobre usuarios locales y GitHub |
+| `src/models/travelRequestModel.js` | Capa de datos para solicitudes de viaje con ID auto-incremental y persistencia JSON |
 | `src/utils/validation.js` | Funciones de validación: regex de email y políticas de contraseña |
 | `data/users.json` | Almacenamiento persistente de usuarios (locales y GitHub) en formato JSON |
+| `data/travel-requests.json` | Almacenamiento persistente de solicitudes de viaje en formato JSON |
 
 ### Frontend
 
@@ -410,6 +464,13 @@ sequenceDiagram
 | `src/features/auth/pages/RegisterPage.tsx` | Componente de página con formulario de registro y confirmación de contraseña |
 | `src/features/auth/pages/GitHubCallbackPage.tsx` | Componente que procesa el callback de GitHub OAuth y gestiona estados de carga/error |
 | `src/features/auth/pages/DashboardPage.tsx` | Vista protegida que muestra información del usuario (local o GitHub) |
+| `src/features/travel-requests/services/travelRequestService.ts` | Servicio para comunicación con API de solicitudes de viaje y endpoint SSR |
+| `src/features/travel-requests/pages/TravelRequestListPage.tsx` | Página que muestra solicitudes de viaje con renderizado SSR desde el servidor |
+| `src/features/travel-requests/pages/TravelRequestFormPage.tsx` | Formulario completo para crear/editar solicitudes de viaje con validaciones |
+| `src/features/travel-requests/types/index.ts` | Interfaces TypeScript para solicitudes de viaje (TravelRequest, TravelRequestStats) |
+| `src/components/ui/Select.tsx` | Componente select reutilizable con soporte para opciones y validación |
+| `src/components/ui/RadioGroup.tsx` | Componente de radio buttons reutilizable para selección única |
+| `src/components/ui/SearchSelect.tsx` | Componente select con filtro de búsqueda para listas grandes de opciones |
 | `src/utils/storage.ts` | Helpers para operaciones con localStorage (get/set/clear token) |
 | `src/utils/validation.ts` | Funciones de validación reutilizables para formularios |
 
@@ -439,6 +500,145 @@ sequenceDiagram
 *¿Tienes una idea de proyecto? Conversemos cómo puedo ayudarte.*
 
 </div>
+
+---
+
+## ✈️ Módulo de Solicitudes de Viaje (SSR)
+
+### Descripción
+
+Módulo que implementa un sistema completo de gestión de solicitudes de viaje con **Server-Side Rendering (SSR)**. El servidor genera el contenido HTML de la lista de solicitudes, permitiendo un renderizado eficiente y optimizado para SEO.
+
+### 🎯 Enfoque SSR - Requerimiento del Profesor
+
+> *"Desarrollar la solución con enfoque SSR para el renderizado del contenido web"*
+
+Este módulo implementa **exclusivamente Server-Side Rendering** donde el backend genera el HTML completo de la interfaz de solicitudes, y el frontend simplemente lo muestra sin procesamiento adicional.
+
+### Características del Módulo
+
+| Característica | Descripción |
+|----------------|-------------|
+| 🖥️ **Renderizado SSR** | El servidor genera el HTML completo con estilos inline |
+| 📝 **Formulario Completo** | Validación en cliente y servidor |
+| 📊 **Panel de Estadísticas** | Total, pendientes, en proceso, finalizadas |
+| 🔍 **Búsqueda Inteligente** | Selector de ciudades con filtro de búsqueda |
+| ✅ **Validaciones Robustas** | DNI chileno, email, fechas, campos requeridos |
+| 💾 **Persistencia Local** | Datos almacenados en archivo JSON |
+
+### Campos del Formulario
+
+| Campo | Descripción | Validación |
+|-------|-------------|------------|
+| ID Solicitud | Generado automáticamente (correlativo) | Auto-generado desde 1001 |
+| DNI Cliente | Identificación del cliente | Formato RUT chileno (12345678-9) |
+| Nombre Cliente | Nombre completo | Mínimo 3 caracteres |
+| Email Cliente | Correo electrónico | Formato email válido |
+| Origen | Ciudad de salida | Selector con búsqueda |
+| Destino | Ciudad de destino | Diferente al origen |
+| Tipo de Viaje | Negocios/Turismo/Otros | Select obligatorio |
+| Fecha Salida | Fecha y hora de partida | datetime-local, requerido |
+| Fecha Regreso | Fecha y hora de retorno | Posterior a fecha de salida |
+| Estado | Pendiente/En Proceso/Finalizada | Radio buttons |
+
+### API Endpoints de Solicitudes
+
+| Método | Endpoint | Descripción | Auth |
+|:------:|----------|-------------|:----:|
+| `GET` | `/api/travel-requests` | Obtener todas las solicitudes | ✅ |
+| `GET` | `/api/travel-requests/:id` | Obtener solicitud por ID | ✅ |
+| `POST` | `/api/travel-requests` | Crear nueva solicitud | ✅ |
+| `PUT` | `/api/travel-requests/:id` | Actualizar solicitud | ✅ |
+| `PATCH` | `/api/travel-requests/:id/status` | Actualizar estado | ✅ |
+| `DELETE` | `/api/travel-requests/:id` | Eliminar solicitud | ✅ |
+| `GET` | `/api/travel-requests/stats` | Obtener estadísticas | ✅ |
+| `GET` | `/api/travel-requests/ssr/list` | **Obtener HTML renderizado (SSR)** | ✅ |
+
+### 🔄 Flujo SSR
+
+```mermaid
+sequenceDiagram
+    participant U as Usuario
+    participant F as Frontend
+    participant B as Backend
+    participant DB as travel-requests.json
+
+    U->>F: Accede a Solicitudes de Viaje
+    F->>B: GET /api/travel-requests/ssr/list
+    B->>DB: Lee solicitudes
+    DB-->>B: Array de solicitudes
+    B->>B: Genera HTML completo con estadísticas
+    B->>B: Incluye estilos CSS inline
+    B-->>F: { html: "...", stats: {...} }
+    F->>F: dangerouslySetInnerHTML={{ __html: html }}
+    F-->>U: Muestra contenido SSR renderizado
+```
+
+### Implementación SSR
+
+El endpoint `/api/travel-requests/ssr/list` genera el contenido HTML directamente desde el servidor:
+
+**Backend (Node.js + Express):**
+```javascript
+// El servidor genera el HTML completo con estilos
+const generateRequestsListHTML = (requests, stats) => {
+  return `
+    <div class="ssr-container">
+      <div class="stats-grid">
+        <div class="stat-card">Total: ${stats.total}</div>
+        <div class="stat-card">Pendientes: ${stats.pending}</div>
+        ...
+      </div>
+      <table class="requests-table">
+        ${requests.map(req => `<tr>...</tr>`).join('')}
+      </table>
+    </div>
+  `;
+};
+
+res.json({ html, data: requests, stats });
+```
+
+**Frontend (React + TypeScript):**
+```tsx
+// El cliente solo inserta el HTML recibido del servidor
+const [ssrHtml, setSsrHtml] = useState<string>('');
+
+useEffect(() => {
+  const response = await travelRequestService.getSSRList();
+  setSsrHtml(response.html);
+}, []);
+
+return <div dangerouslySetInnerHTML={{ __html: ssrHtml }} />;
+```
+
+### Uso del Módulo
+
+1. **Iniciar sesión** en el sistema con credenciales válidas
+2. **Navegar** a "Solicitudes de Viaje" desde el menú lateral del Dashboard
+3. **Visualizar** la lista de solicitudes renderizada por el servidor (SSR)
+4. **Crear solicitud** usando el botón "Nueva Solicitud"
+5. **Completar formulario** con todos los datos requeridos
+6. **Verificar** las estadísticas actualizadas en tiempo real
+
+### Estructura de Datos
+
+**Solicitud en `travel-requests.json`:**
+```json
+{
+  "id": 1001,
+  "clientDni": "12345678-9",
+  "clientName": "Juan Pérez",
+  "clientEmail": "juan.perez@email.com",
+  "origin": "Santiago",
+  "destination": "Buenos Aires",
+  "tripType": "business",
+  "departureDate": "2025-02-15T10:00",
+  "returnDate": "2025-02-20T18:00",
+  "status": "pending",
+  "createdAt": "2025-01-20T15:30:00.000Z",
+  "updatedAt": "2025-01-20T15:30:00.000Z"
+}
 
 ---
 

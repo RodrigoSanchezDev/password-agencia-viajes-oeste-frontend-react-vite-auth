@@ -1,0 +1,507 @@
+/* 
+  Travel Requests List Page CSS
+  Reutiliza los estilos del dashboard para mantener consistencia visual
+  Las clases .dashboard__* se importan desde DashboardPage.css
+*/
+
+/* Contenido de Solicitudes de Viaje */
+.travel-requests {
+  padding: 1rem 0;
+}
+
+/* Toolbar */
+.travel-requests__toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* Badge SSR */
+.travel-requests__ssr-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
+}
+
+.travel-requests__ssr-badge svg {
+  font-size: 1.125rem;
+}
+
+.travel-requests__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.travel-requests__refresh-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.travel-requests__refresh-btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.travel-requests__refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Indicador de modo */
+.travel-requests__mode-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: var(--radius-md);
+  color: var(--color-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+}
+
+.travel-requests__mode-indicator--ssr {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.2);
+  color: #059669;
+}
+
+/* Card Container */
+.travel-requests__card {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-lg);
+}
+
+/* Loading */
+.travel-requests__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  gap: 1rem;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+/* Stats Grid */
+.travel-requests__stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.travel-requests__stat-card {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  text-align: center;
+  border: 1px solid var(--color-border);
+}
+
+.travel-requests__stat-card--pending {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-color: #f59e0b;
+}
+
+.travel-requests__stat-card--processing {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border-color: #3b82f6;
+}
+
+.travel-requests__stat-card--completed {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  border-color: #10b981;
+}
+
+.travel-requests__stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.travel-requests__stat-label {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin-top: 0.25rem;
+}
+
+/* Table */
+.travel-requests__table-container {
+  overflow-x: auto;
+}
+
+.travel-requests__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.travel-requests__table th {
+  text-align: left;
+  padding: 1rem 0.75rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.travel-requests__table tbody tr {
+  transition: background-color var(--transition-fast);
+}
+
+.travel-requests__table tbody tr:hover {
+  background-color: rgba(59, 130, 246, 0.04);
+}
+
+.travel-requests__table td {
+  padding: 1rem 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.travel-requests__cell--id {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.travel-requests__empty {
+  text-align: center;
+  padding: 3rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+/* Status Select */
+.travel-requests__status-select {
+  padding: 0.375rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  background: var(--color-surface);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.travel-requests__status-select:hover {
+  border-color: var(--color-primary);
+}
+
+.travel-requests__status-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* Footer */
+.travel-requests__footer {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--color-border);
+  text-align: center;
+}
+
+.travel-requests__footer p {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* Badges de estado */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-badge--pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge--processing {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status-badge--completed {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+/* Badges de tipo de viaje */
+.trip-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.trip-badge--business {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+.trip-badge--tourism {
+  background: #fce7f3;
+  color: #9d174d;
+}
+
+.trip-badge--other {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* Contenedor SSR */
+.ssr-content-container {
+  width: 100%;
+}
+
+.ssr-content-container .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.ssr-content-container .stat-card {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 12px;
+  padding: 1.25rem;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+}
+
+.ssr-content-container .stat-card--pending {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-color: #f59e0b;
+}
+
+.ssr-content-container .stat-card--processing {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border-color: #3b82f6;
+}
+
+.ssr-content-container .stat-card--completed {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  border-color: #10b981;
+}
+
+.ssr-content-container .stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.ssr-content-container .stat-label {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin-top: 0.25rem;
+}
+
+.ssr-content-container .table-container {
+  overflow-x: auto;
+}
+
+.ssr-content-container .requests-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.ssr-content-container .requests-table th {
+  text-align: left;
+  padding: 1rem 0.75rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.ssr-content-container .table-row {
+  transition: background-color 0.15s ease;
+}
+
+.ssr-content-container .table-row:hover {
+  background-color: rgba(59, 130, 246, 0.04);
+}
+
+.ssr-content-container .table-cell {
+  padding: 1rem 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  color: #1e293b;
+}
+
+.ssr-content-container .table-cell--id {
+  font-weight: 600;
+  color: #3b82f6;
+}
+
+.ssr-content-container .table-cell--date {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.ssr-content-container .table-empty {
+  text-align: center;
+  padding: 3rem;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.ssr-content-container .status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.ssr-content-container .status-badge--pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.ssr-content-container .status-badge--processing {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.ssr-content-container .status-badge--completed {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.ssr-content-container .trip-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.ssr-content-container .trip-badge--business {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+.ssr-content-container .trip-badge--tourism {
+  background: #fce7f3;
+  color: #9d174d;
+}
+
+.ssr-content-container .trip-badge--other {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.ssr-content-container .ssr-footer {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px dashed #e2e8f0;
+  text-align: center;
+}
+
+.ssr-content-container .ssr-timestamp {
+  font-size: 0.75rem;
+  color: #059669;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .travel-requests__stats,
+  .ssr-content-container .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .travel-requests__toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .travel-requests__view-toggle {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .travel-requests__toggle-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .travel-requests__actions {
+    justify-content: space-between;
+  }
+
+  .travel-requests__stats,
+  .ssr-content-container .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .travel-requests__stats,
+  .ssr-content-container .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}

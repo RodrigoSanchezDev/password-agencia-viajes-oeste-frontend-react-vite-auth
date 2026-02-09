@@ -7,6 +7,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
+const travelRequestRoutes = require('./routes/travelRequestRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -26,6 +27,7 @@ app.use((req, res, next) => {
 
 // Rutas
 app.use('/api/auth', authRoutes);
+app.use('/api/travel-requests', travelRequestRoutes);
 
 // Ruta de health check
 app.get('/api/health', (req, res) => {

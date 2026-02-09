@@ -1,0 +1,113 @@
+/* 
+  Travel Request Form Page CSS
+  Reutiliza los estilos del dashboard para mantener consistencia visual
+  Las clases .dashboard__* se importan desde DashboardPage.css
+*/
+
+/* Contenedor del formulario */
+.travel-request-form-container {
+  padding: 1rem 0;
+  max-width: 900px;
+}
+
+/* Botón Volver */
+.travel-request-form__back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: none;
+  color: var(--color-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+  margin-bottom: 1.5rem;
+}
+
+.travel-request-form__back-btn:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Formulario */
+.travel-request-form {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+  box-shadow: var(--shadow-lg);
+}
+
+.travel-request-form__section {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.travel-request-form__section:last-of-type {
+  margin-bottom: 1.5rem;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.travel-request-form__section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 1.5rem;
+}
+
+.travel-request-form__section-title svg {
+  font-size: 1.25rem;
+  color: var(--color-primary);
+}
+
+.travel-request-form__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+/* Botones de acción */
+.travel-request-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .travel-request-form-container {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .travel-request-form__grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .travel-request-form {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .travel-request-form {
+    padding: 1rem;
+  }
+
+  .travel-request-form__actions {
+    flex-direction: column;
+  }
+
+  .travel-request-form__actions button {
+    width: 100%;
+  }
+}

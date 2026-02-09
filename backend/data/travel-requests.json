@@ -1,0 +1,19 @@
+{
+  "travelRequests": [
+    {
+      "id": 1001,
+      "clientDni": "16414595-0",
+      "clientName": "Esteban Castro Paredes",
+      "clientEmail": "esteban.castro@email.com",
+      "origin": "Santiago, Chile",
+      "destination": "Buenos Aires, Argentina",
+      "tripType": "turismo",
+      "departureDateTime": "2026-02-12T18:00",
+      "returnDateTime": "2026-02-26T18:00",
+      "status": "finalizada",
+      "createdAt": "2026-02-09T00:00:46.442Z",
+      "updatedAt": "2026-02-09T00:06:29.867Z"
+    }
+  ],
+  "lastId": 1000
+}

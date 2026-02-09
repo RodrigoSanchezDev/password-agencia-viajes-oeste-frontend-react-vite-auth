@@ -1,0 +1,112 @@
+.radio-group {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.radio-group__label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.radio-group__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.radio-group__option {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-border);
+  background-color: var(--color-surface);
+  transition: all var(--transition-fast);
+  min-height: 44px;
+}
+
+.radio-group__option:hover:not(.radio-group__option--disabled) {
+  border-color: var(--color-primary-light);
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+.radio-group__option--selected {
+  border-color: var(--color-primary);
+  background-color: rgba(59, 130, 246, 0.08);
+}
+
+.radio-group__option--disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  background-color: var(--color-background);
+}
+
+.radio-group__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.radio-group__custom-radio {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.radio-group__option--selected .radio-group__custom-radio {
+  border-color: var(--color-primary);
+}
+
+.radio-group__custom-radio::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  transform: scale(0);
+  transition: transform var(--transition-fast);
+}
+
+.radio-group__option--selected .radio-group__custom-radio::after {
+  transform: scale(1);
+}
+
+.radio-group__text {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.radio-group__helper {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.radio-group__error {
+  font-size: var(--font-size-sm);
+  color: var(--color-error);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .radio-group__options {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+}

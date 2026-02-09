@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { apiClient } from '../../../api/client';
 import { 
@@ -16,7 +16,8 @@ import {
   HiOutlineLocationMarker,
   HiOutlineCalendar,
   HiOutlineStar,
-  HiOutlineArrowRight
+  HiOutlineArrowRight,
+  HiOutlineDocumentText
 } from 'react-icons/hi';
 import { FiTarget } from 'react-icons/fi';
 import { FaGithub } from 'react-icons/fa';
@@ -113,6 +114,10 @@ export const DashboardPage: React.FC = () => {
             <HiOutlineHome className="dashboard__nav-icon" />
             <span>Inicio</span>
           </a>
+          <Link to="/travel-requests" className="dashboard__nav-item">
+            <HiOutlineDocumentText className="dashboard__nav-icon" />
+            <span>Solicitudes de Viaje</span>
+          </Link>
           <a href="#" className="dashboard__nav-item">
             <HiOutlineSearch className="dashboard__nav-icon" />
             <span>Explorar</span>
