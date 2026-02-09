@@ -13,7 +13,6 @@ import {
   HiOutlineLogout,
   HiOutlineBell,
   HiOutlineGlobeAlt,
-  HiOutlineLocationMarker,
   HiOutlineCalendar,
   HiOutlineStar,
   HiOutlineArrowRight,

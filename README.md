@@ -267,6 +267,19 @@ npm run dev
 | `GET` | `/api/auth/github` | Obtener URL de autorización de GitHub | ❌ |
 | `POST` | `/api/auth/github/callback` | Procesar callback OAuth y generar JWT | ❌ |
 
+### Endpoints de Solicitudes de Viaje (SSR)
+
+| Método | Endpoint | Descripción | Auth |
+|:------:|----------|-------------|:----:|
+| `GET` | `/api/travel-requests` | Obtener todas las solicitudes | ✅ |
+| `GET` | `/api/travel-requests/:id` | Obtener solicitud por ID | ✅ |
+| `POST` | `/api/travel-requests` | Crear nueva solicitud | ✅ |
+| `PUT` | `/api/travel-requests/:id` | Actualizar solicitud | ✅ |
+| `PATCH` | `/api/travel-requests/:id/status` | Actualizar estado | ✅ |
+| `DELETE` | `/api/travel-requests/:id` | Eliminar solicitud | ✅ |
+| `GET` | `/api/travel-requests/stats` | Obtener estadísticas | ✅ |
+| `GET` | `/api/travel-requests/ssr/list` | **HTML renderizado desde servidor (SSR)** | ✅ |
+
 ### Ejemplos de Peticiones
 
 <details>
@@ -332,6 +345,63 @@ curl -X POST http://localhost:3001/api/auth/logout \
 ```
 </details>
 
+<details>
+<summary><b>✈️ Crear Solicitud de Viaje</b></summary>
+
+```bash
+curl -X POST http://localhost:3001/api/travel-requests \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIs..." \
+  -d '{
+    "clientDni": "12345678-9",
+    "clientName": "Juan Pérez",
+    "clientEmail": "juan@email.com",
+    "origin": "Santiago",
+    "destination": "Buenos Aires",
+    "tripType": "turismo",
+    "departureDateTime": "2026-03-15T10:00",
+    "returnDateTime": "2026-03-22T18:00",
+    "status": "pendiente"
+  }'
+```
+
+**Respuesta (201 Created):**
+```json
+{
+  "message": "Solicitud de viaje registrada exitosamente",
+  "data": {
+    "id": 1001,
+    "clientDni": "12345678-9",
+    "clientName": "Juan Pérez",
+    "status": "pendiente"
+  }
+}
+```
+</details>
+
+<details>
+<summary><b>🖥️ Obtener HTML SSR de Solicitudes</b></summary>
+
+```bash
+curl -X GET http://localhost:3001/api/travel-requests/ssr/list \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIs..."
+```
+
+**Respuesta (200 OK):**
+```json
+{
+  "message": "HTML generado desde el servidor (SSR)",
+  "html": "<div class='ssr-container'>...</div>",
+  "stats": {
+    "total": 5,
+    "pending": 2,
+    "inProgress": 1,
+    "completed": 2
+  }
+}
+```
+</details>
+
 ---
 
 ## 📋 Documentación Técnica
@@ -385,6 +455,25 @@ sequenceDiagram
     F-->>U: Redirigir a Dashboard
 ```
 
+### ✈️ Flujo Server-Side Rendering (SSR)
+
+```mermaid
+sequenceDiagram
+    participant U as Usuario
+    participant F as Frontend
+    participant B as Backend
+    participant DB as travel-requests.json
+
+    U->>F: Accede a Solicitudes de Viaje
+    F->>B: GET /api/travel-requests/ssr/list
+    B->>DB: Lee solicitudes
+    DB-->>B: Array de solicitudes
+    B->>B: Genera HTML completo con estilos
+    B-->>F: { html, stats }
+    F->>F: dangerouslySetInnerHTML
+    F-->>U: Muestra contenido SSR
+```
+
 ### 🔐 Seguridad Implementada
 
 | Característica | Implementación |
@@ -405,6 +494,24 @@ sequenceDiagram
   "password": "$2a$10$WUkGUq4jcmoAVd8/Jyjrk...",
   "createdAt": "2026-01-20T01:44:28.514Z",
   "lastLogin": "2026-01-20T01:44:38.071Z"
+}
+```
+
+**Solicitud de Viaje en `travel-requests.json`:**
+```json
+{
+  "id": 1001,
+  "clientDni": "12345678-9",
+  "clientName": "Juan Pérez",
+  "clientEmail": "juan@email.com",
+  "origin": "Santiago",
+  "destination": "Buenos Aires",
+  "tripType": "turismo",
+  "departureDateTime": "2026-03-15T10:00",
+  "returnDateTime": "2026-03-22T18:00",
+  "status": "pendiente",
+  "createdAt": "2026-01-20T15:30:00.000Z",
+  "updatedAt": "2026-01-20T15:30:00.000Z"
 }
 ```
 
@@ -500,145 +607,6 @@ sequenceDiagram
 *¿Tienes una idea de proyecto? Conversemos cómo puedo ayudarte.*
 
 </div>
-
----
-
-## ✈️ Módulo de Solicitudes de Viaje (SSR)
-
-### Descripción
-
-Módulo que implementa un sistema completo de gestión de solicitudes de viaje con **Server-Side Rendering (SSR)**. El servidor genera el contenido HTML de la lista de solicitudes, permitiendo un renderizado eficiente y optimizado para SEO.
-
-### 🎯 Enfoque SSR - Requerimiento del Profesor
-
-> *"Desarrollar la solución con enfoque SSR para el renderizado del contenido web"*
-
-Este módulo implementa **exclusivamente Server-Side Rendering** donde el backend genera el HTML completo de la interfaz de solicitudes, y el frontend simplemente lo muestra sin procesamiento adicional.
-
-### Características del Módulo
-
-| Característica | Descripción |
-|----------------|-------------|
-| 🖥️ **Renderizado SSR** | El servidor genera el HTML completo con estilos inline |
-| 📝 **Formulario Completo** | Validación en cliente y servidor |
-| 📊 **Panel de Estadísticas** | Total, pendientes, en proceso, finalizadas |
-| 🔍 **Búsqueda Inteligente** | Selector de ciudades con filtro de búsqueda |
-| ✅ **Validaciones Robustas** | DNI chileno, email, fechas, campos requeridos |
-| 💾 **Persistencia Local** | Datos almacenados en archivo JSON |
-
-### Campos del Formulario
-
-| Campo | Descripción | Validación |
-|-------|-------------|------------|
-| ID Solicitud | Generado automáticamente (correlativo) | Auto-generado desde 1001 |
-| DNI Cliente | Identificación del cliente | Formato RUT chileno (12345678-9) |
-| Nombre Cliente | Nombre completo | Mínimo 3 caracteres |
-| Email Cliente | Correo electrónico | Formato email válido |
-| Origen | Ciudad de salida | Selector con búsqueda |
-| Destino | Ciudad de destino | Diferente al origen |
-| Tipo de Viaje | Negocios/Turismo/Otros | Select obligatorio |
-| Fecha Salida | Fecha y hora de partida | datetime-local, requerido |
-| Fecha Regreso | Fecha y hora de retorno | Posterior a fecha de salida |
-| Estado | Pendiente/En Proceso/Finalizada | Radio buttons |
-
-### API Endpoints de Solicitudes
-
-| Método | Endpoint | Descripción | Auth |
-|:------:|----------|-------------|:----:|
-| `GET` | `/api/travel-requests` | Obtener todas las solicitudes | ✅ |
-| `GET` | `/api/travel-requests/:id` | Obtener solicitud por ID | ✅ |
-| `POST` | `/api/travel-requests` | Crear nueva solicitud | ✅ |
-| `PUT` | `/api/travel-requests/:id` | Actualizar solicitud | ✅ |
-| `PATCH` | `/api/travel-requests/:id/status` | Actualizar estado | ✅ |
-| `DELETE` | `/api/travel-requests/:id` | Eliminar solicitud | ✅ |
-| `GET` | `/api/travel-requests/stats` | Obtener estadísticas | ✅ |
-| `GET` | `/api/travel-requests/ssr/list` | **Obtener HTML renderizado (SSR)** | ✅ |
-
-### 🔄 Flujo SSR
-
-```mermaid
-sequenceDiagram
-    participant U as Usuario
-    participant F as Frontend
-    participant B as Backend
-    participant DB as travel-requests.json
-
-    U->>F: Accede a Solicitudes de Viaje
-    F->>B: GET /api/travel-requests/ssr/list
-    B->>DB: Lee solicitudes
-    DB-->>B: Array de solicitudes
-    B->>B: Genera HTML completo con estadísticas
-    B->>B: Incluye estilos CSS inline
-    B-->>F: { html: "...", stats: {...} }
-    F->>F: dangerouslySetInnerHTML={{ __html: html }}
-    F-->>U: Muestra contenido SSR renderizado
-```
-
-### Implementación SSR
-
-El endpoint `/api/travel-requests/ssr/list` genera el contenido HTML directamente desde el servidor:
-
-**Backend (Node.js + Express):**
-```javascript
-// El servidor genera el HTML completo con estilos
-const generateRequestsListHTML = (requests, stats) => {
-  return `
-    <div class="ssr-container">
-      <div class="stats-grid">
-        <div class="stat-card">Total: ${stats.total}</div>
-        <div class="stat-card">Pendientes: ${stats.pending}</div>
-        ...
-      </div>
-      <table class="requests-table">
-        ${requests.map(req => `<tr>...</tr>`).join('')}
-      </table>
-    </div>
-  `;
-};
-
-res.json({ html, data: requests, stats });
-```
-
-**Frontend (React + TypeScript):**
-```tsx
-// El cliente solo inserta el HTML recibido del servidor
-const [ssrHtml, setSsrHtml] = useState<string>('');
-
-useEffect(() => {
-  const response = await travelRequestService.getSSRList();
-  setSsrHtml(response.html);
-}, []);
-
-return <div dangerouslySetInnerHTML={{ __html: ssrHtml }} />;
-```
-
-### Uso del Módulo
-
-1. **Iniciar sesión** en el sistema con credenciales válidas
-2. **Navegar** a "Solicitudes de Viaje" desde el menú lateral del Dashboard
-3. **Visualizar** la lista de solicitudes renderizada por el servidor (SSR)
-4. **Crear solicitud** usando el botón "Nueva Solicitud"
-5. **Completar formulario** con todos los datos requeridos
-6. **Verificar** las estadísticas actualizadas en tiempo real
-
-### Estructura de Datos
-
-**Solicitud en `travel-requests.json`:**
-```json
-{
-  "id": 1001,
-  "clientDni": "12345678-9",
-  "clientName": "Juan Pérez",
-  "clientEmail": "juan.perez@email.com",
-  "origin": "Santiago",
-  "destination": "Buenos Aires",
-  "tripType": "business",
-  "departureDate": "2025-02-15T10:00",
-  "returnDate": "2025-02-20T18:00",
-  "status": "pending",
-  "createdAt": "2025-01-20T15:30:00.000Z",
-  "updatedAt": "2025-01-20T15:30:00.000Z"
-}
 
 ---
 
